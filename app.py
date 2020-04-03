@@ -136,9 +136,6 @@ def list_users():
 
     Can take a 'q' param in querystring to search by that username.
     """
-    if not g.user:
-        flash("Access unauthorized.", "danger")
-        return redirect("/")
 
     search = request.args.get('q')
 
