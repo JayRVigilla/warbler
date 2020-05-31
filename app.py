@@ -8,13 +8,11 @@ from forms import UserAddForm, LoginForm, MessageForm, EditUserForm
 from models import db, connect_db, User, Message, Follows, Likes
 
 
-
 CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
 
-# Get DB_URI from environ variable (useful for production/testing) or,
-# if not set there, use development local db.
+
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ.get('DATABASE_URL', 'postgres:///warbler'))
 
@@ -22,12 +20,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
-toolbar = DebugToolbarExtension(app)
+# toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
 
 
-##############################################################################
 # User signup/login/logout
 
 
@@ -115,26 +112,13 @@ def login():
 def logout():
     """Handle logout of user."""
 
-    # IMPLEMENT THIS
-
-    # Do we need to check if they're the current user?
-    # If they aren't we should log them out anyway?
-    # if not g.user:
-    #     flash("Access unauthorized.", "danger")
-    #     return redirect("/")
-    
-
     do_logout()
 
     flash("Success! You're logged out.", 'success')
     return redirect('/login')
 
-    
-    
 
-
-##############################################################################
-# General user routes:
+# User routes:
 
 @app.route('/users')
 def list_users():
@@ -159,16 +143,19 @@ def users_show(user_id):
 
     user = User.query.get_or_404(user_id)
 
-    # snagging messages in order from the database;
-    # user.messages won't be in order by default
     messages = (Message
                 .query
                 .filter(Message.user_id == user_id)
                 .order_by(Message.timestamp.desc())
                 .limit(100)
                 .all())
-    likes=[l.message_id for l in Likes.query.filter_by(user_id=g.user.id).all()]
-    return render_template('users/show.html', likes=likes, user=user, messages=messages)
+    likes = [l.message_id for l in Likes.query.filter_by(
+        user_id=g.user.id).all()]
+    return render_template('users/show.html',
+                           likes=likes,
+                           user=user,
+                           messages=messages)
+
 
 @app.route('/users/<int:user_id>/likes')
 def users_likes_show(user_id):
@@ -180,17 +167,20 @@ def users_likes_show(user_id):
 
     user = User.query.get_or_404(user_id)
 
-    # snagging messages in order from the database;
-    # user.
-    like_ids=[l.message_id for l in Likes.query.filter_by(user_id=user_id).all()]
+    like_ids = [l.message_id for l in Likes.query.filter_by(
+        user_id=user_id).all()]
 
     messages = (Message
                 .query
-                .filter(Message.user_id==user_id).filter
+                .filter(Message.user_id == user_id)
                 .order_by(Message.timestamp.desc())
                 .all())
-    import pdb; pdb.set_trace()
-    return render_template('users/show.html', likes=like_ids, user=user, messages=messages)
+    import pdb
+    pdb.set_trace()
+    return render_template('users/show.html',
+                           likes=like_ids,
+                           user=user,
+                           messages=messages)
 
 
 @app.route('/users/<int:user_id>/following')
@@ -251,8 +241,6 @@ def stop_following(follow_id):
 def profile():
     """Update profile for current user."""
 
-    # IMPLEMENT THIS
-
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
@@ -293,7 +281,6 @@ def delete_user():
     return redirect("/signup")
 
 
-##############################################################################
 # Messages routes:
 
 @app.route('/messages/new', methods=["GET", "POST"])
@@ -342,7 +329,6 @@ def messages_destroy(message_id):
     return redirect(f"/users/{g.user.id}")
 
 
-##############################################################################
 # Message routes for likes
 
 @app.route('/messages/<int:message_id>/like', methods=['POST'])
@@ -356,19 +342,21 @@ def like_or_unlike_message(message_id):
     message = Message.query.get_or_404(message_id)
 
     if g.user.id == message.user_id:
-        
+
         return redirect(request.referrer)
-    
+
     else:
 
-        like = Likes.query.filter_by(message_id=message_id).filter_by(user_id=g.user.id).first()
+        like = Likes.query.filter_by(
+            message_id=message_id).filter_by(user_id=g.user.id).first()
 
         if like:
             db.session.delete(like)
-                
+
         else:
-            new_like = Likes(user_id = g.user.id,
-                        message_id = message_id)
+            new_like = Likes(
+                             user_id=g.user.id,
+                             message_id=message_id)
             db.session.add(new_like)
 
     db.session.commit()
@@ -376,8 +364,6 @@ def like_or_unlike_message(message_id):
     return redirect(request.referrer)
 
 
-
-##############################################################################
 # Homepage and error pages
 
 
@@ -390,26 +376,29 @@ def homepage():
     """
 
     if g.user:
-        following_ids = [user.user_being_followed_id for user in Follows.query.filter(g.user.id == Follows.user_following_id)]
+        following_ids = [
+            user.user_being_followed_id for user in Follows.query.filter(
+                g.user.id == Follows.user_following_id)]
         messages = (Message
                     .query
-                    .filter(db.or_(Message.user_id == g.user.id, Message.user_id.in_(following_ids)))
+                    .filter(db.or_(Message.user_id == g.user.id,
+                                   Message.user_id.in_(following_ids)))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
-        likes=[l.message_id for l in Likes.query.filter_by(user_id=g.user.id).all()]
+        likes = [l.message_id for l in Likes.query.filter_by(
+            user_id=g.user.id).all()]
         return render_template('home.html', messages=messages, likes=likes)
 
     else:
         return render_template('home-anon.html')
 
-# db.session.query(Message).filter(user_id in_(g.user.following))
 ##############################################################################
 # Turn off all caching in Flask
-#   (useful for dev; in production, this kind of stuff is typically
-#   handled elsewhere)
+#   (useful for dev; in production this typically handled elsewhere)
 #
 # https://stackoverflow.com/questions/34066804/disabling-caching-in-flask
+
 
 @app.after_request
 def add_header(req):

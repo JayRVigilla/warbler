@@ -108,12 +108,11 @@ class User(db.Model):
         primaryjoin=(Follows.user_following_id == id),
         secondaryjoin=(Follows.user_being_followed_id == id)
     )
-    # currently getting the messages, maybe better named liked_messages
-    likes = db.relationship(  # gets messages
-        'Message',  # Message class instances that were liked, but not from Like table
-        secondary="likes"  # "through" this table to get the thing above
+    likes = db.relationship(
+        'Message',
+        secondary="likes"
     )
-    likes2 = db.relationship('Likes')  # gets like objects from likes table
+    likes2 = db.relationship('Likes')
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}, {self.email}>"
@@ -121,13 +120,15 @@ class User(db.Model):
     def is_followed_by(self, other_user):
         """Is this user followed by `other_user`?"""
 
-        found_user_list = [user for user in self.followers if user == other_user]
+        found_user_list = [
+            user for user in self.followers if user == other_user]
         return len(found_user_list) == 1
 
     def is_following(self, other_user):
         """Is this user following `other_use`?"""
 
-        found_user_list = [user for user in self.following if user == other_user]
+        found_user_list = [
+            user for user in self.following if user == other_user]
         return len(found_user_list) == 1
 
     @classmethod
@@ -201,10 +202,6 @@ class Message(db.Model):
 
 
 def connect_db(app):
-    """Connect this database to provided Flask app.
-
-    You should call this in your Flask app.
-    """
 
     db.app = app
     db.init_app(app)
