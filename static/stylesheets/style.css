@@ -1,8 +1,11 @@
 /* ====================== General */
 
 body {
-  background-color: #e6ecf0;
+  /* background-color: #e6ecf0; */
+  background-color: rgb(186, 190, 200);
+
 }
+
 
 body.error-404 {
   background-color: #1da1f2;
@@ -23,7 +26,9 @@ body.error-404 {
 /* ======================= Nav */
 
 .navbar {
-  background-color: #fff;
+  /* background-color: #fff; */
+  background-color: rgb(255, 246, 123);
+
   height: 46px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.25);
   margin-bottom: 1rem;
@@ -33,6 +38,7 @@ body.error-404 {
 
 .navbar a {
   color: #66757f;
+  /* color: rgb(208, 183, 121); */
   font-size: 13px;
   font-weight: bold;
 }
@@ -109,8 +115,10 @@ nav form.navbar-form {
  */
 
 .onboarding > .navbar {
-  background-image: url("/static/images/nav-bg.png");
+  /* background-image: url("/static/images/nav-bg.png"); */
+  background-color: rgb(255, 246, 123);
   background-size: 100% 100%;
+
 }
 
 .onboarding .navbar-header {
@@ -131,7 +139,7 @@ nav form.navbar-form {
 }
 
 .onboarding > .navbar a {
-  color: #fff;
+  color: #66757f;
 }
 
 .onboarding > .navbar form.navbar-form {
