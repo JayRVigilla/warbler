@@ -1,5 +1,6 @@
-# **Warbler**  ![alt text](https://github.com/JayRVigilla/warbler/raw/master/static/images/warbler-logo.png "Warbler Logo")
+![alt text](https://github.com/JayRVigilla/warbler/raw/master/static/images/warbler-logo.png "Warbler Logo")
 
+# **Warbler** 
 
 ### **Description:**
 
